@@ -1,0 +1,118 @@
+<!-- src/main/resources/static/app/components/dashboard/dashboard.component.html -->
+<div class="dashboard-container">
+  <h1>Automobile Manufacturing Dashboard</h1>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <span class="ms-2">Loading dashboard data...</span>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error" class="dashboard-content">
+    <div class="row">
+      <!-- Supply Chain Status Overview -->
+      <div class="col-md-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Supply Chain Status</h5>
+          </div>
+          <div class="card-body">
+            <div *ngIf="supplyChainStatus">
+              <div class="row mb-2">
+                <div class="col-6 fw-bold">Date:</div>
+                <div class="col-6">{{ supplyChainStatus.date | date:'mediumDate' }}</div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-6 fw-bold">Daily Target:</div>
+                <div class="col-6">{{ supplyChainStatus.dailyTarget }} units</div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-6 fw-bold">Current Output:</div>
+                <div class="col-6">{{ supplyChainStatus.currentOutput }} units</div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-6 fw-bold">Projected Output:</div>
+                <div class="col-6">{{ supplyChainStatus.projectedEndOfDayOutput }} units</div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-6 fw-bold">Target Completion:</div>
+                <div class="col-6">{{ supplyChainStatus.targetCompletionPercentage.toFixed(1) }}%</div>
+              </div>
+              <div class="row">
+                <div class="col-6 fw-bold">Status:</div>
+                <div class="col-6" [ngClass]="getTargetStatusClass(supplyChainStatus.onTrack)">
+                  <strong>{{ supplyChainStatus.onTrack ? 'On Track' : 'Behind Schedule' }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Factory Health Overview -->
+      <div class="col-md-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Factory Health</h5>
+          </div>
+          <div class="card-body">
+            <table class="table table-striped">
+              <thead>
+              <tr>
+                <th>Stage</th>
+                <th>Health Score</th>
+                <th>Operational Devices</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let stage of stagesHealth">
+                <td>{{ stage.stageName }}</td>
+                <td [ngClass]="getHealthStatusClass(stage.overallHealthScore)">
+                  <strong>{{ stage.overallHealthScore.toFixed(1) }}%</strong>
+                </td>
+                <td>{{ stage.operationalDevices }} / {{ stage.totalDevices }}</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Production Output Overview -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card" *ngIf="supplyChainStatus">
+          <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Production Output by Stage</h5>
+          </div>
+          <div class="card-body">
+            <table class="table table-striped">
+              <thead>
+              <tr>
+                <th>Stage</th>
+                <th>Units Produced</th>
+                <th>Defective Units</th>
+                <th>Yield</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let output of supplyChainStatus.stageOutputs">
+                <td>{{ output.stageName }}</td>
+                <td>{{ output.unitsProduced }}</td>
+                <td>{{ output.defectiveUnits }}</td>
+                <td>{{ output.effectiveYieldPercentage.toFixed(1) }}%</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,131 @@
+<div class="supply-chain-container">
+  <h1>Supply Chain Management</h1>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <span class="ms-2">Loading supply chain data...</span>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="!loading && !error" class="supply-chain-content">
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Select Date</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="date-select" class="form-label">Production Date:</label>
+              <input type="date" id="date-select" class="form-control"
+                     [(ngModel)]="selectedDate" (change)="onDateChange()">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Set Daily Target</h5>
+          </div>
+          <div class="card-body">
+            <form (ngSubmit)="updateDailyTarget()">
+              <div class="mb-3">
+                <label for="target-input" class="form-label">Daily Target (units):</label>
+                <input type="number" id="target-input" class="form-control"
+                       [(ngModel)]="newTarget" name="newTarget" min="1">
+              </div>
+              <button type="submit" class="btn btn-primary">Update Target</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="status">
+      <div class="col-md-6 mb-4">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Production Status</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mb-2">
+              <div class="col-6 fw-bold">Date:</div>
+              <div class="col-6">{{ status.date | date:'mediumDate' }}</div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-6 fw-bold">Daily Target:</div>
+              <div class="col-6">{{ status.dailyTarget }} units</div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-6 fw-bold">Current Output:</div>
+              <div class="col-6">{{ status.currentOutput }} units</div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-6 fw-bold">Projected Output:</div>
+              <div class="col-6">{{ status.projectedEndOfDayOutput }} units</div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-12 fw-bold">Target Completion:</div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-12">
+                <div class="progress">
+                  <div class="progress-bar" role="progressbar"
+                       [ngClass]="getProgressBarClass(status.targetCompletionPercentage)"
+                       [style.width.%]="status.targetCompletionPercentage > 100 ? 100 : status.targetCompletionPercentage">
+                    {{ status.targetCompletionPercentage.toFixed(1) }}%
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-6 fw-bold">Status:</div>
+              <div class="col-6" [ngClass]="getStatusClass(status.onTrack)">
+                <strong>{{ status.onTrack ? 'On Track' : 'Behind Schedule' }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-4">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Production by Stage</h5>
+          </div>
+          <div class="card-body">
+            <table class="table table-striped">
+              <thead>
+              <tr>
+                <th>Stage</th>
+                <th>Units</th>
+                <th>Defective</th>
+                <th>Yield %</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let output of status.stageOutputs">
+                <td>{{ output.stageName }}</td>
+                <td>{{ output.unitsProduced }}</td>
+                <td>{{ output.defectiveUnits }}</td>
+                <td>{{ output.effectiveYieldPercentage.toFixed(1) }}%</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
