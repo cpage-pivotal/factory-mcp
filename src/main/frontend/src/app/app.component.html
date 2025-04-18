@@ -1,5 +1,18 @@
-<main xmlns="http://www.w3.org/1999/html">
+<div class="app-container">
+  <mat-toolbar color="primary">
+    <span>{{ title }}</span>
+    <span class="toolbar-spacer"></span>
+    <button mat-button routerLink="/dashboard">
+      <mat-icon>dashboard</mat-icon>
+      Dashboard
+    </button>
+    <button mat-button routerLink="/supply-chain">
+      <mat-icon>timeline</mat-icon>
+      Supply Chain
+    </button>
+  </mat-toolbar>
 
-</main>
-
-<router-outlet />
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

@@ -1,0 +1,108 @@
+<div class="dashboard-container">
+  <h1>Factory Management Dashboard</h1>
+
+  <div class="refresh-button">
+    <button mat-icon-button color="primary" (click)="refreshData()" [disabled]="loading">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <p>Loading dashboard data...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>Error loading data. Please try again later.</p>
+  </div>
+
+  <div *ngIf="!loading && !error">
+    <!-- Supply Chain Status Card -->
+    <mat-card class="status-card" *ngIf="supplyChainStatus">
+      <mat-card-header>
+        <mat-card-title>Supply Chain Status</mat-card-title>
+        <mat-card-subtitle>{{ supplyChainStatus.date | date }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="status-item">
+          <span>Daily Target:</span>
+          <strong>{{ supplyChainStatus.dailyTarget }} units</strong>
+        </div>
+
+        <div class="status-item">
+          <span>Current Output:</span>
+          <strong>{{ supplyChainStatus.currentOutput }} units</strong>
+        </div>
+
+        <div class="status-item">
+          <span>Projected End of Day:</span>
+          <strong>{{ supplyChainStatus.projectedEndOfDayOutput }} units</strong>
+        </div>
+
+        <div class="status-item">
+          <span>Target Completion:</span>
+          <div class="progress-container">
+            <mat-progress-bar
+              [color]="getStatusColor(supplyChainStatus.targetCompletionPercentage)"
+              mode="determinate"
+              [value]="supplyChainStatus.targetCompletionPercentage">
+            </mat-progress-bar>
+            <span class="progress-value">{{ supplyChainStatus.targetCompletionPercentage | number:'1.0-1' }}%</span>
+          </div>
+        </div>
+
+        <div class="status-item">
+          <span>Status:</span>
+          <strong [class.on-track]="supplyChainStatus.onTrack"
+                  [class.off-track]="!supplyChainStatus.onTrack">
+            {{ supplyChainStatus.onTrack ? 'On Track' : 'Off Track' }}
+          </strong>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-button color="primary" [routerLink]="['/supply-chain']">
+          View Details
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Manufacturing Stages -->
+    <h2>Manufacturing Stages</h2>
+
+    <div class="stages-grid">
+      <mat-card class="stage-card" *ngFor="let stage of stagesHealth">
+        <mat-card-header>
+          <mat-card-title>{{ stage.stageName }}</mat-card-title>
+          <mat-card-subtitle>Stage {{ stage.sequenceOrder }}</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="health-score">
+            <span>Health Score:</span>
+            <div class="progress-container">
+              <mat-progress-bar
+                [color]="getHealthColor(stage.overallHealthScore)"
+                mode="determinate"
+                [value]="stage.overallHealthScore">
+              </mat-progress-bar>
+              <span class="progress-value">{{ stage.overallHealthScore | number:'1.0-1' }}%</span>
+            </div>
+          </div>
+
+          <div class="devices-status">
+            <span>Devices:</span>
+            <strong>{{ stage.operationalDevices }} / {{ stage.totalDevices }} operational</strong>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="viewStageDetails(stage.stageId)">
+            View Details
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</div>
