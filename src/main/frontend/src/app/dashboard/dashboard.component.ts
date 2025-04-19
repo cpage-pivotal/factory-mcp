@@ -9,7 +9,7 @@ import { SupplyChainService } from '../services/supply-chain.service';
 import { FactoryService } from '../services/factory.service';
 import { StageHealth } from '../models/stage-health.model';
 import { SupplyChainStatus } from '../models/supply-chain-status.model';
-import { Router } from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,7 +19,8 @@ import { Router } from '@angular/router';
     MatCardModule,
     MatProgressBarModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    RouterLink
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
