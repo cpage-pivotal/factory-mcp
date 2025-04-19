@@ -1,5 +1,7 @@
 package org.tanzu.factory.factory;
 
+import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,7 @@ public class FactoryService {
         this.metricsRepository = metricsRepository;
     }
 
+    @Tool(description = "")
     public List<StageHealthDto> getManufacturingStagesHealth() {
         List<ManufacturingStage> stages = stageRepository.findAll();
         return stages.stream()
@@ -31,7 +34,8 @@ public class FactoryService {
                 .collect(Collectors.toList());
     }
 
-    public StageHealthDto getStageHealth(Long stageId) {
+    @Tool(description = "")
+    public StageHealthDto getStageHealth(@ToolParam(description = "") Long stageId) {
         Optional<ManufacturingStage> stageOpt = stageRepository.findById(stageId);
         return stageOpt.map(this::convertToStageHealthDto).orElse(null);
     }
@@ -72,8 +76,12 @@ public class FactoryService {
                 device.getHealthScore()
         );
     }
+
     @Transactional
-    public void updateDeviceHealth(Long deviceId, boolean operational, double healthScore) {
+    @Tool(description = "")
+    public void updateDeviceHealth(@ToolParam(description = "") Long deviceId,
+                                   @ToolParam(description = "") boolean operational,
+                                   @ToolParam(description = "") double healthScore) {
         deviceRepository.findById(deviceId).ifPresent(device -> {
             device.setOperational(operational);
             device.setHealthScore(healthScore);
@@ -81,7 +89,10 @@ public class FactoryService {
         });
     }
 
-    public ProductionOutputDto getStageOutput(int stageOrder, LocalDateTime startTime, LocalDateTime endTime) {
+    @Tool(description = "")
+    public ProductionOutputDto getStageOutput(@ToolParam(description = "") int stageOrder,
+                                              @ToolParam(description = "") LocalDateTime startTime,
+                                              @ToolParam(description = "") LocalDateTime endTime) {
         ManufacturingStage stage = stageRepository.findBySequenceOrder(stageOrder);
         if (stage == null) {
             return null;
@@ -111,7 +122,9 @@ public class FactoryService {
         );
     }
 
-    public List<ProductionOutputDto> getAllStagesOutput(LocalDateTime startTime, LocalDateTime endTime) {
+    @Tool(description = "")
+    public List<ProductionOutputDto> getAllStagesOutput(@ToolParam(description = "") LocalDateTime startTime,
+                                                        @ToolParam(description = "") LocalDateTime endTime) {
         List<ManufacturingStage> stages = stageRepository.findAll();
         List<ProductionOutputDto> outputs = new ArrayList<>();
 
@@ -126,8 +139,11 @@ public class FactoryService {
     }
 
     @Transactional
-    public void recordProductionMetrics(Long deviceId, int unitsProduced, int defectiveUnits,
-                                        double cycleTimeMinutes) {
+    @Tool(description = "")
+    public void recordProductionMetrics(@ToolParam(description = "")Long deviceId,
+                                        @ToolParam(description = "")int unitsProduced,
+                                        @ToolParam(description = "")int defectiveUnits,
+                                        @ToolParam(description = "")double cycleTimeMinutes) {
         deviceRepository.findById(deviceId).ifPresent(device -> {
             ProductionMetrics metrics = new ProductionMetrics(
                     LocalDateTime.now(), unitsProduced, defectiveUnits, cycleTimeMinutes, device);

@@ -1,10 +1,11 @@
 package org.tanzu.factory.supplychain;
 
+import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tanzu.factory.factory.FactoryService;
 import org.tanzu.factory.factory.ProductionOutputDto;
-import org.tanzu.factory.factory.ProductionMetricsRepository;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -17,22 +18,21 @@ import java.util.Optional;
 public class SupplyChainService {
     private final DailyTargetRepository targetRepository;
     private final FactoryService factoryService;
-    private final ProductionMetricsRepository metricsRepository;
 
     // Assume 8-hour production day (8am to 4pm)
     private static final LocalTime SHIFT_START = LocalTime.of(8, 0);
     private static final LocalTime SHIFT_END = LocalTime.of(16, 0);
 
     public SupplyChainService(DailyTargetRepository targetRepository,
-                              FactoryService factoryService,
-                              ProductionMetricsRepository metricsRepository) {
+                              FactoryService factoryService) {
         this.targetRepository = targetRepository;
         this.factoryService = factoryService;
-        this.metricsRepository = metricsRepository;
     }
 
     @Transactional
-    public DailyTarget setDailyTarget(LocalDate date, int targetUnits) {
+    @Tool(description = "")
+    public DailyTarget setDailyTarget(@ToolParam(description = "") LocalDate date,
+                                      @ToolParam(description = "") int targetUnits) {
         Optional<DailyTarget> existingTarget = targetRepository.findByDate(date);
 
         if (existingTarget.isPresent()) {
@@ -45,16 +45,19 @@ public class SupplyChainService {
         }
     }
 
-    public DailyTarget getDailyTarget(LocalDate date) {
+    @Tool(description = "")
+    public DailyTarget getDailyTarget(@ToolParam(description = "") LocalDate date) {
         return targetRepository.findByDate(date)
                 .orElse(new DailyTarget(date, 0)); // Return empty target if none exists
     }
 
+    @Tool(description = "")
     public SupplyChainStatusDto getCurrentSupplyChainStatus() {
         return getSupplyChainStatus(LocalDate.now());
     }
 
-    public SupplyChainStatusDto getSupplyChainStatus(LocalDate date) {
+    @Tool(description = "")
+    public SupplyChainStatusDto getSupplyChainStatus(@ToolParam(description = "") LocalDate date) {
         LocalDateTime now = LocalDateTime.now();
 
         // Get shift start and end times for the given date
