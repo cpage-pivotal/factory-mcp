@@ -40,40 +40,38 @@ public class FactoryService {
         List<IoTDevice> devices = deviceRepository.findByStage(stage);
         List<IoTDevice> operationalDevices = deviceRepository.findByStageAndOperationalTrue(stage);
 
-        StageHealthDto dto = new StageHealthDto();
-        dto.setStageId(stage.getId());
-        dto.setStageName(stage.getName());
-        dto.setSequenceOrder(stage.getSequenceOrder());
-        dto.setTotalDevices(devices.size());
-        dto.setOperationalDevices(operationalDevices.size());
-
         // Calculate overall health score as average of all device health scores
         double overallHealth = devices.stream()
                 .mapToDouble(IoTDevice::getHealthScore)
                 .average()
                 .orElse(0.0);
-        dto.setOverallHealthScore(overallHealth);
 
         // Map devices to DTOs
         List<DeviceHealthDto> deviceDtos = devices.stream()
                 .map(this::convertToDeviceHealthDto)
                 .collect(Collectors.toList());
-        dto.setDevices(deviceDtos);
 
-        return dto;
+        return new StageHealthDto(
+                stage.getId(),
+                stage.getName(),
+                stage.getSequenceOrder(),
+                overallHealth,
+                devices.size(),
+                operationalDevices.size(),
+                deviceDtos
+        );
     }
 
     private DeviceHealthDto convertToDeviceHealthDto(IoTDevice device) {
-        DeviceHealthDto dto = new DeviceHealthDto();
-        dto.setId(device.getId());
-        dto.setDeviceId(device.getDeviceId());
-        dto.setName(device.getName());
-        dto.setDeviceType(device.getDeviceType());
-        dto.setOperational(device.isOperational());
-        dto.setHealthScore(device.getHealthScore());
-        return dto;
+        return new DeviceHealthDto(
+                device.getId(),
+                device.getDeviceId(),
+                device.getName(),
+                device.getDeviceType(),
+                device.isOperational(),
+                device.getHealthScore()
+        );
     }
-
     @Transactional
     public void updateDeviceHealth(Long deviceId, boolean operational, double healthScore) {
         deviceRepository.findById(deviceId).ifPresent(device -> {
@@ -102,16 +100,15 @@ public class FactoryService {
                 ? 100.0 * (unitsProduced - defectiveUnits) / unitsProduced
                 : 0.0;
 
-        ProductionOutputDto dto = new ProductionOutputDto();
-        dto.setStageOrder(stageOrder);
-        dto.setStageName(stage.getName());
-        dto.setUnitsProduced(unitsProduced);
-        dto.setDefectiveUnits(defectiveUnits);
-        dto.setEffectiveYieldPercentage(effectiveYield);
-        dto.setStartTime(startTime);
-        dto.setEndTime(endTime);
-
-        return dto;
+        return new ProductionOutputDto(
+                stageOrder,
+                stage.getName(),
+                unitsProduced,
+                defectiveUnits,
+                effectiveYield,
+                startTime,
+                endTime
+        );
     }
 
     public List<ProductionOutputDto> getAllStagesOutput(LocalDateTime startTime, LocalDateTime endTime) {

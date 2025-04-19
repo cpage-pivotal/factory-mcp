@@ -78,13 +78,13 @@ public class SupplyChainService {
         // Final stage output is our current total production
         // (assumes stages are ordered and last stage is final assembly)
         int finalStageOrder = stageOutputs.stream()
-                .mapToInt(ProductionOutputDto::getStageOrder)
+                .mapToInt(ProductionOutputDto::stageOrder)
                 .max()
                 .orElse(0);
 
         int currentOutput = stageOutputs.stream()
-                .filter(output -> output.getStageOrder() == finalStageOrder)
-                .mapToInt(output -> output.getUnitsProduced() - output.getDefectiveUnits())
+                .filter(output -> output.stageOrder() == finalStageOrder)
+                .mapToInt(output -> output.unitsProduced() - output.defectiveUnits())
                 .findFirst()
                 .orElse(0);
 
@@ -109,16 +109,15 @@ public class SupplyChainService {
 
         boolean onTrack = projectedOutput >= target.getTargetUnits();
 
-        // Build the response
-        SupplyChainStatusDto statusDto = new SupplyChainStatusDto();
-        statusDto.setDate(date);
-        statusDto.setDailyTarget(target.getTargetUnits());
-        statusDto.setCurrentOutput(currentOutput);
-        statusDto.setProjectedEndOfDayOutput(projectedOutput);
-        statusDto.setTargetCompletionPercentage(targetCompletion);
-        statusDto.setOnTrack(onTrack);
-        statusDto.setStageOutputs(stageOutputs);
-
-        return statusDto;
+        // Return a new record instance
+        return new SupplyChainStatusDto(
+                date,
+                target.getTargetUnits(),
+                currentOutput,
+                projectedOutput,
+                targetCompletion,
+                onTrack,
+                stageOutputs
+        );
     }
 }
