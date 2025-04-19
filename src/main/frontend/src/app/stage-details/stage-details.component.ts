@@ -96,4 +96,8 @@ export class StageDetailsComponent implements OnInit {
   refreshData(): void {
     this.loadStageData();
   }
+
+  viewDeviceDetails(deviceId: number): void {
+    this.router.navigate(['/stages', this.stageId, 'devices', deviceId]);
+  }
 }
